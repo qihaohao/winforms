@@ -2440,7 +2440,7 @@ namespace System.Windows.Forms.PropertyGridInternal
             return rect;
         }
 
-        private /*protected virtual*/ int GetRowFromGridEntry(GridEntry gridEntry)
+        internal /*protected virtual*/ int GetRowFromGridEntry(GridEntry gridEntry)
         {
             GridEntryCollection rgipesAll = GetAllGridEntries();
             if (gridEntry == null || rgipesAll == null)
@@ -8441,16 +8441,29 @@ namespace System.Windows.Forms.PropertyGridInternal
             /// <returns>Returns a ValInfo indicating whether the element supports this property, or has no value for it.</returns>
             internal override object GetPropertyValue(int propertyID)
             {
-                if (propertyID == NativeMethods.UIA_ControlTypePropertyId)
+                switch (propertyID)
                 {
-                    return NativeMethods.UIA_TableControlTypeId;
-                }
-                else if (propertyID == NativeMethods.UIA_NamePropertyId)
-                {
-                    return Name;
+                    case NativeMethods.UIA_ControlTypePropertyId:
+                        return NativeMethods.UIA_TableControlTypeId;
+                    case NativeMethods.UIA_NamePropertyId:
+                        return Name;
+                    case NativeMethods.UIA_IsTablePatternAvailablePropertyId:
+                    case NativeMethods.UIA_IsGridPatternAvailablePropertyId:
+                        return true;
                 }
 
                 return base.GetPropertyValue(propertyID);
+            }
+
+            internal override bool IsPatternSupported(int patternId)
+            {
+                if (patternId == NativeMethods.UIA_TablePatternId ||
+                    patternId == NativeMethods.UIA_GridPatternId)
+                {
+                    return true;
+                }
+
+                return base.IsPatternSupported(patternId);
             }
 
             public override string Name
@@ -8853,6 +8866,15 @@ namespace System.Windows.Forms.PropertyGridInternal
                 }
                 return null;    // Perform default behavior
             }
+
+            internal virtual UnsafeNativeMethods.IRawElementProviderSimple GetItem(int row, int column)
+            {
+                return GetChild(row);
+            }
+
+            internal override int RowCount => GetChildCount();
+
+            internal override int ColumnCount => 2; // There are two columns: names and values.
         }
 
         internal class GridPositionData

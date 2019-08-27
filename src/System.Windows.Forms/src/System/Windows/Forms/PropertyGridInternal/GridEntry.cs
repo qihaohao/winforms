@@ -3254,10 +3254,15 @@ namespace System.Windows.Forms.PropertyGridInternal
                         return false;
                     case NativeMethods.UIA_IsOffscreenPropertyId:
                         return (State & AccessibleStates.Offscreen) == AccessibleStates.Offscreen;
+                    case NativeMethods.UIA_IsGridItemPatternAvailablePropertyId:
+                    case NativeMethods.UIA_IsTableItemPatternAvailablePropertyId:
+                        return true;
                     case NativeMethods.UIA_LegacyIAccessibleRolePropertyId:
                         return Role;
                     case NativeMethods.UIA_LegacyIAccessibleDefaultActionPropertyId:
                         return DefaultAction;
+
+
                     default:
                         return base.GetPropertyValue(propertyID);
                 }
@@ -3272,6 +3277,8 @@ namespace System.Windows.Forms.PropertyGridInternal
                 }
 
                 if (patternId == NativeMethods.UIA_InvokePatternId ||
+                    patternId == NativeMethods.UIA_GridItemPatternId ||
+                    patternId == NativeMethods.UIA_TableItemPatternId ||
                     patternId == NativeMethods.UIA_LegacyIAccessiblePatternId)
                 {
                     return true;
@@ -3505,6 +3512,22 @@ namespace System.Windows.Forms.PropertyGridInternal
                 base.SetFocus();
 
                 RaiseAutomationEvent(NativeMethods.UIA_AutomationFocusChangedEventId);
+            }
+
+            internal override int Row
+            {
+                get
+                {
+                    // GetRowFromGridEntry substracts ScrollOffset from row. Here we should not take scroll into account so add it.
+                    return PropertyGridView.GetRowFromGridEntry(owner) + PropertyGridView.GetScrollOffset();
+                }
+            }
+
+            internal override int Column => 1; // Property grid entry should be in the second column, the first column is for label / category.
+
+            internal virtual UnsafeNativeMethods.IRawElementProviderSimple ContainingGrid
+            {
+                get => this.PropertyGridView.AccessibilityObject;
             }
         }
 

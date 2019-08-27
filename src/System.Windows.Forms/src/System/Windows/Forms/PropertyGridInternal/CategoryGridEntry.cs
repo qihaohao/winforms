@@ -318,6 +318,8 @@ namespace System.Windows.Forms.PropertyGridInternal
                     return AccessibleRole.ButtonDropDownGrid;
                 }
             }
+
+            internal override int Column => 0; // Category is in the first column.
         }
     }
 
