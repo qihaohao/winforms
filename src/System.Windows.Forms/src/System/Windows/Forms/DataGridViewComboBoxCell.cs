@@ -3119,8 +3119,36 @@ namespace System.Windows.Forms
                 {
                     return NativeMethods.UIA_ComboBoxControlTypeId;
                 }
+                else if (propertyID == NativeMethods.UIA_IsExpandCollapsePatternAvailablePropertyId)
+                {
+                    return IsPatternSupported(NativeMethods.UIA_ExpandCollapsePatternId);
+                }
 
                 return base.GetPropertyValue(propertyID);
+            }
+
+            internal override bool IsPatternSupported(int patternId)
+            {
+                if (patternId == NativeMethods.UIA_ExpandCollapsePatternId)
+                {
+                    return true;
+                }
+
+                return base.IsPatternSupported(patternId);
+            }
+
+            internal override UnsafeNativeMethods.ExpandCollapseState ExpandCollapseState
+            {
+                get
+                {
+                    DataGridViewComboBoxEditingControl comboBox = Owner.Properties.GetObject(PropComboBoxCellEditingComboBox) as DataGridViewComboBoxEditingControl;
+                    if (comboBox != null)
+                    {
+                        return comboBox.DroppedDown ? UnsafeNativeMethods.ExpandCollapseState.Expanded : UnsafeNativeMethods.ExpandCollapseState.Collapsed;
+                    }
+
+                    return UnsafeNativeMethods.ExpandCollapseState.Collapsed;
+                }
             }
         }
     }
