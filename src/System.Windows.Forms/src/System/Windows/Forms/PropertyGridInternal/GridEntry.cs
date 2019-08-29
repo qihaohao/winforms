@@ -3523,9 +3523,11 @@ namespace System.Windows.Forms.PropertyGridInternal
                 }
             }
 
-            internal override int Column => 1; // Property grid entry should be in the second column, the first column is for label / category.
+            internal override int Column => 0; // Property grid entry should be in the second column (1), 
+                                               // the first column is for label / category (0) but Narrator
+                                               // always announce the entire row as a label, so keep it 0.
 
-            internal virtual UnsafeNativeMethods.IRawElementProviderSimple ContainingGrid
+            internal override UnsafeNativeMethods.IRawElementProviderSimple ContainingGrid
             {
                 get => this.PropertyGridView.AccessibilityObject;
             }
